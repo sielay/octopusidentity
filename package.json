@@ -1,0 +1,37 @@
+{
+  "name": "octopusidentity",
+  "description": "Passport + mongoose middle ware to manage multiple identity users and non-user contacts without redundancy and conflicts.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Lukasz Sielski",
+    "email": "lukaszsielski@gmail.com"
+  },
+  "engines": {
+    "node": "0.10.x"
+  },
+  "dependencies": {
+    "parent-require": "^1.0.0"
+  },
+  "devDependencies": {
+    "cucumber": "^0.4.4",
+    "mongoose": "^3.9.2",
+    "mongoose-user": "0.0.1"
+  },
+  "keywords": [
+    "passport",
+    "authentication",
+    "mongoose",
+    "contacts",
+    "users",
+    "multilogin",
+    "token",
+    "identity"
+  ],
+  "directories": {
+    "lib": "./src"
+  },
+  "scripts": {
+    "test": "set MONGOOSE_DISABLE_STABILITY_WARNING=1 && mocha --async-only test/*.test.js"
+  },
+  "main": "./index.js"
+}
