@@ -1,7 +1,7 @@
 /**
  * Module dependencies
  */
-var prequire = require( 'parent-require' );
+var prequire = require( 'top-require' );
 var mongoose = prequire( 'mongoose' );
 var Schema = mongoose.Schema;
 
@@ -12,7 +12,7 @@ var AliasSchema = new Schema( {
     id       : { type : String },
     provider : { type : String },
     user     : { type : String, default : null },
-    contacts : [ { type: String } ]
+    contacts : [ { type : String } ]
 } );
 
 AliasSchema.static( {
@@ -106,7 +106,7 @@ function getAllForContact ( contact, callback ) {
 
 }
 
-function attachUser ( user, provider, id, callback ) {
+function attachUser ( user, provider, id, callback, force ) {
 
     read( provider, id, function ( err, model ) {
         if ( err ) {
@@ -118,17 +118,21 @@ function attachUser ( user, provider, id, callback ) {
             model.provider = provider;
         }
 
-        if ( model.user ) {
-            return callback( 'Alias already attach to some user', null );
-        } else {
-            model.user = user;
-            model.save( function ( err, data ) {
-                if ( err ) {
-                    return callback( err, null );
-                }
-                callback( null, data );
-            } );
+        if ( model.user == user ) {
+            return callback( null, model );
         }
+
+        if ( model.user && !force) {
+            return callback( 'Alias already attach to some user', null );
+        }
+        model.user = user;
+        model.save( function ( err, data ) {
+            if ( err ) {
+                return callback( err, null );
+            }
+            callback( null, data );
+        } );
+
     } );
 };
 

@@ -10,7 +10,7 @@
     "node": "0.10.x"
   },
   "dependencies": {
-    "parent-require": "^1.0.0"
+    "top-require": "^0.1.0"
   },
   "devDependencies": {
     "cucumber": "^0.4.4",

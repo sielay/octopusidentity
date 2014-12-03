@@ -1,4 +1,4 @@
-var prequire = require( 'parent-require' );
+var prequire = require( 'top-require' );
 var mongoose = prequire( 'mongoose' );
 var Schema = mongoose.Schema;
 var crypto = prequire( 'crypto' );
