@@ -1,7 +1,7 @@
 {
   "name": "octopusidentity",
   "description": "Passport + mongoose middle ware to manage multiple identity users and non-user contacts without redundancy and conflicts.",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "author": {
     "name": "Lukasz Sielski",
     "email": "lukaszsielski@gmail.com"
