@@ -63,11 +63,13 @@ module.exports = function ( schema, options ) {
             aliases.push( { provider : AliasModel.USERNAME, id : user.username } );
         }
         if ( user.provider != 'local' && user.providerData ) {
-            aliases.push( { provider : user.provider, id : user.providerData.id } );
+            var login = user.providerData.username || user.providerData.login || user.providerData.id;
+            aliases.push( { provider : user.provider, id : login } );
         }
         if ( user.additionalProvidersData ) {
             Object.keys( user.additionalProvidersData ).forEach( function ( key ) {
-                aliases.push( { provider : key, id : user.additionalProvidersData[ key ].id } );
+                var login = user.additionalProvidersData[ key ].username || user.additionalProvidersData[ key ].login || user.additionalProvidersData[ key ].id;
+                aliases.push( { provider : key, id : login } );
             } );
         }
         return aliases;

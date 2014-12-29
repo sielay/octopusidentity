@@ -10,7 +10,8 @@
     "node": "0.10.x"
   },
   "dependencies": {
-    "top-require": "^0.1.0"
+    "top-require": "^0.1.0",
+    "winston": "^0.8.3"
   },
   "devDependencies": {
     "cucumber": "^0.4.4",

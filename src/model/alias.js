@@ -5,6 +5,12 @@ var prequire = require( 'top-require' );
 var mongoose = prequire( 'mongoose' );
 var extend = require( 'util' )._extend;
 var Schema = mongoose.Schema;
+var winston = require( 'winston' );
+var logger = new (winston.Logger)( {
+    transports : [
+        new (winston.transports.Console)( { level : 'debug' } )
+    ]
+} );
 
 /**
  * Schema
@@ -26,6 +32,8 @@ AliasSchema.static( {
     LINKEDIN             : 'linkedin',
     VK                   : 'vk',
     TWITTER              : 'twitter',
+    TRELLO               : 'trello',
+    SLACK                : 'slack',
     read                 : read,
     getUser              : getUser,
     getContact           : getContact,
@@ -61,6 +69,7 @@ module.exports = {
  * @param errback
  */
 function read ( provider, id, callback ) {
+    logger.debug( 'OctopusIdentity Alias:read ' + provider + ' ' + id );
     AliasModel.findOne( {
         provider : provider,
         id       : id
@@ -73,7 +82,6 @@ function read ( provider, id, callback ) {
 }
 
 function getUser ( provider, id, callback ) {
-
     read( provider, id, function ( err, model ) {
         if ( model ) {
             callback( null, model.user ); //TODO: test if that is user
@@ -118,7 +126,7 @@ function getAllForUser ( userID, callback ) {
 
 function getAllForContact ( contactID, callback ) {
     AliasModel.find( {
-        contacts : contactId
+        contacts : contactID
     }, function ( err, aliases ) {
         if ( err ) {
             return callback( err, null );
@@ -128,6 +136,7 @@ function getAllForContact ( contactID, callback ) {
 }
 
 function attachUser ( user, provider, id, callback, force ) {
+    logger.debug( 'OctopusIdentity Alias:attachUser ' + provider + ' ' + id + ' ' + (force ? 'force' : '') );
     read( provider, id, function ( err, model ) {
         if ( err ) {
             return callback( err, null );
@@ -154,10 +163,10 @@ function attachUser ( user, provider, id, callback, force ) {
         } );
 
     } );
-};
+}
 
 function detachUser ( provider, id, callback ) {
-
+    logger.debug( 'OctopusIdentity Alias:detachUser ' + provider + ' ' + id );
     read( provider, id, function ( err, model ) {
         if ( err ) {
             callback( err, null );
@@ -177,8 +186,48 @@ function detachUser ( provider, id, callback ) {
     } );
 }
 
-function attachContact ( contact, provider, id, callback ) {
+function attachContact ( contact, provider, id, data, callback ) {
+    logger.debug( 'OctopusIdentity Alias:attachContact ' + provider + ' ' + id );
+    read( provider, id, function ( err, model ) {
+        if ( err ) {
+            return callback( err, null );
+        }
+        if ( !model ) {
+            model = new AliasModel();
+            model.id = id;
+            model.provider = provider;
+        }
+        if ( !model.contacts ) {
+            model.contacts = [];
+        }
+        var updateAnyway = false;
 
+        if ( data ) {
+            if ( data.displayName ) {
+                model.displayName = data.displayName;
+                updateAnyway = true;
+            }
+            if ( data.thumb ) {
+                model.thumb = data.thumb;
+                updateAnyway = true;
+            }
+        }
+
+        if ( model.contacts.indexOf( contact ) >= 0 ) {
+            if ( !updateAnyway ) {
+                return callback( null, model );
+            }
+        } else {
+            model.contacts.push( contact );
+        }
+        model.save( function ( err, data ) {
+            if ( err ) {
+                return callback( err, null );
+            }
+            callback( null, model );
+        } );
+
+    } );
 }
 
 function detachContact ( contact, provider, id, callback ) {
@@ -223,7 +272,13 @@ function updateThirdPartyData ( provider, id, data, callback ) {
             return callback( err );
         }
         extend( alias, data );
-        alias.save( callback );
+        var that = alias;
+        alias.save( function ( error, data ) {
+            if ( error ) {
+                return callback( error );
+            }
+            callback( null, that );
+        } );
     } );
 }
 
